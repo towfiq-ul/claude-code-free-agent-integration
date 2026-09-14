@@ -1,0 +1,12 @@
+# Ignore all JSON config files
+*.json
+
+# Ignore other shell scripts
+*.sh
+!install.sh
+
+# Ignore text files (used for temp data, not committed)
+*.txt
+
+.idea
+.vscode
