@@ -20,6 +20,18 @@ You can use Claude Code alongside other coding agents (e.g., OpenRouter) without
 
 ## Installation Instructions
 
+### Quick Install (one-liner)
+
+Run this command to download and execute the installer directly:
+
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/towfiq-ul/claude-code-free-agent-integration/master/install.sh)
+```
+
+This preserves interactive input so you can respond to prompts. When prompted, press **Enter** to keep the current values for **API Key**, **Base URL**, and **Model**. Confirm with `y` to write the settings.
+
+### Manual Install
+
 1. Clone or download this repository.
 
 2. Make the installer executable (if needed):
