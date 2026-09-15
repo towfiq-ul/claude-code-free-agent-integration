@@ -33,18 +33,12 @@ print_error() {
 ask_value() {
   local prompt="$1"
   local var_name="$2"
-  while true; do
-    echo -ne "\n${BOLD}$prompt: ${RESET}"
-    read -r value
-    if [[ -n "$value" ]]; then
-      eval "$var_name=\"$value\""
-      return
-    fi
-    print_error "This field cannot be empty. Please enter a value."
-  done
+  echo -ne "\n${BOLD}$prompt: ${RESET}"
+  read -r value
+  eval "$var_name=\"$value\""
 }
 
-# ─── Step 1: Install Claude Code if missing ─────────────────────────────────
+# ─── Step 1: Install Claude Code if missing ─────────────────────────
 install_claude_code() {
   print_section "Checking Claude Code installation"
 
@@ -68,12 +62,27 @@ install_claude_code() {
 write_settings() {
   print_section "Enter your configuration"
 
-  ask_value "Enter Base URL (e.g. https://openrouter.ai/api)" SELECTED_BASE_URL
-  ask_value "Enter Model (e.g. inclusionai/ling-3.0-flash-vl:free)" SELECTED_MODEL
-  ask_value "Enter API Key" SELECTED_API_KEY
-
   local SETTINGS_DIR="$HOME/.claude"
   local SETTINGS_FILE="$SETTINGS_DIR/settings.json"
+
+  local CURRENT_BASE_URL=""
+  local CURRENT_MODEL=""
+  local CURRENT_API_KEY=""
+
+  if [[ -f "$SETTINGS_FILE" ]]; then
+    CURRENT_BASE_URL=$(python3 -c "import json; d=json.load(open('$SETTINGS_FILE')); print(d.get('env',{}).get('ANTHROPIC_BASE_URL',''))" 2>/dev/null || echo "")
+    CURRENT_MODEL=$(python3 -c "import json; d=json.load(open('$SETTINGS_FILE')); print(d.get('model',''))" 2>/dev/null || echo "")
+    CURRENT_API_KEY=$(python3 -c "import json; d=json.load(open('$SETTINGS_FILE')); print(d.get('env',{}).get('ANTHROPIC_AUTH_TOKEN',''))" 2>/dev/null || echo "")
+  fi
+
+  ask_value "Enter Base URL (e.g. https://openrouter.ai/api) [current: ${CURRENT_BASE_URL:-<none>}]" SELECTED_BASE_URL
+  ask_value "Enter Model (e.g. inclusionai/ling-3.0-flash-vl:free) [current: ${CURRENT_MODEL:-<none>}]" SELECTED_MODEL
+  ask_value "Enter API Key [current: ${CURRENT_API_KEY:0:8}...]" SELECTED_API_KEY
+
+  # Keep current value if input is empty
+  [[ -z "$SELECTED_BASE_URL" ]] && SELECTED_BASE_URL="$CURRENT_BASE_URL"
+  [[ -z "$SELECTED_MODEL" ]] && SELECTED_MODEL="$CURRENT_MODEL"
+  [[ -z "$SELECTED_API_KEY" ]] && SELECTED_API_KEY="$CURRENT_API_KEY"
 
   local SETTINGS_CONTENT
   SETTINGS_CONTENT=$(cat <<JSON
